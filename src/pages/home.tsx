@@ -12,7 +12,7 @@ import Pizza from 'static/Pizza.jpg';
 import { useState } from 'react';
 import { useSelector,useDispatch } from 'react-redux';
 import { RootState } from '../../Store';
-import { addItems, addNoofItems, addTotal } from './slices/OrderSlice';
+import { addItems, addNoofItems, addTotal } from '../../OrderSlice';
 import 'animate.css';
 
 const Home:React.FC = () => {
