@@ -1,6 +1,6 @@
 import type { AppProps } from "next/app";
 import Login from ".";
-import { store } from "./Store";
+import { store } from "../../Store";
 import { Provider} from "react-redux";
 import 'bootstrap/dist/css/bootstrap.min.css';
 

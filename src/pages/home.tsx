@@ -11,7 +11,7 @@ import Burger from 'static/Burger.jpg';
 import Pizza from 'static/Pizza.jpg';
 import { useState } from 'react';
 import { useSelector,useDispatch } from 'react-redux';
-import { RootState } from './Store';
+import { RootState } from '../../Store';
 import { addItems, addNoofItems, addTotal } from './slices/OrderSlice';
 import 'animate.css';
 
