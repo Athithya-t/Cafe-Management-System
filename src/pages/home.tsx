@@ -28,8 +28,17 @@ const Home:React.FC = () => {
   const [total,settotal] = useState(0);
   const [noofitems,setnoofitems] = useState(0);
   const [searchbar,setsearchbar] = useState(false);
+  const [searchquery,setsearchquery] = useState("");
+  const [filtereddata,setfiltereddata] = useState('');
   const Items = useSelector((state:RootState)=>state.Order);
-  console.log(Items);
+  const Titles = Food_Details.map((food)=>{return food.Title})
+  console.log(searchquery);
+  const searchHandler:Function=(forminput:string)=>{
+    setsearchquery(forminput);
+    const filter = Titles.filter((value)=>{return value.toLowerCase().includes(searchquery.toLowerCase())})
+    setfiltereddata(filter.length==1?filter[0]:"");
+  }
+  //console.log(Items);
   const dispatch = useDispatch();
   const handleButtonClick = (index:number,Carddata:any) =>{
     const newButtonState = [...clickedAdd];
@@ -91,42 +100,48 @@ const Home:React.FC = () => {
   const SearchBar:React.FC=()=>{
     return(
       <Form className='w-100'>
-      <FormControl placeholder='Search for your favorite food here' className='rounded-pill shadow' style={{zIndex:'200',position:'fixed',width:'90%',marginLeft:'3%',marginTop:'20%',borderColor:'black'}}/>
-      {/* <div className='rounded' style={{position:'fixed',backgroundColor:'white',zIndex:'200',marginTop:'10%',marginLeft:'3%',width:'80%'}}>
-        <ul>
-          <li>Pizza</li>
-          <li>Burger</li>
-          <li>Ice Cream</li>
-        </ul>
-      </div> */}
+      <FormControl placeholder='Search for your favorite food here' value={searchquery} onChange={(e)=>{setsearchquery(e.target.value)}} className='rounded-pill shadow' style={{zIndex:'200',position:'fixed',width:'90%',marginLeft:'3%',marginTop:'20%',borderColor:'black'}}/>
+        <div className='rounded' style={{position:'fixed',backgroundColor:'white',zIndex:'200',marginTop:'30%',marginLeft:'5%',width:'80%'}}>
+          <ul>
+            <li>Pizza</li>
+            <li>Burger</li>
+            <li>Ice Cream</li>
+          </ul>
+        </div> 
     </Form>
     )
   }
 
   return (
-    <div>
-      {searchbar&&<div className='position-relative'><div className='animate__animated animate__zoomIn' style={{backgroundColor:'gray',width:'100%',height:'100%',position:'fixed',zIndex:'50',opacity:0.5}} onClick={()=>{setsearchbar(prev=>!prev)}}></div>
-      <SearchBar/></div>}
-    <Container className="d-flex flex-column align-items-center h-100">
-    {openCart&& <div className={openCartin?"animate__animated animate__fadeInUp rounded-pill shadow-lg":"animate__animated animate__slideOutDown rounded-pill shadow-lg"} style={{backgroundColor:'pink',position:'fixed',bottom:6,zIndex:'20',width:'93%',marginLeft:'4%',height:'5%',animationDuration:'1s'}}>
-      <p className='ms-2 fw-bold ms-5 mt-2'>Total:{total}</p>
-    </div>}
+    <>
+      {searchbar&&<div className='position-relative'><div className='animate__animated animate__zoomIn' style={{backgroundColor:'gray',width:'100%',height:'100%',position:'fixed',zIndex:'50',opacity:0.5}} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}}></div>
+      <Form className='w-100'>
+        <FormControl placeholder='Search for your favorite food here' value={searchquery} onChange={(e)=>{searchHandler(e.target.value)}} className='rounded-pill shadow' style={{zIndex:'200',position:'fixed',width:'90%',marginLeft:'3%',marginTop:'20%',borderColor:'black'}}/> 
+        <div className='rounded' style={{position:'fixed',backgroundColor:'white',zIndex:'200',marginTop:'30%',marginLeft:'5%',width:'80%'}}>
+          <a href={`#${filtereddata}`} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}}>{searchquery!=""&&filtereddata}</a>
+        </div>
+      </Form></div>
+      }
+      <Container className="d-flex flex-column align-items-center h-100">
+      {openCart&& <div className={openCartin?"animate__animated animate__fadeInUp rounded-pill shadow-lg":"animate__animated animate__slideOutDown rounded-pill shadow-lg"} style={{backgroundColor:'pink',position:'fixed',bottom:6,zIndex:'20',width:'93%',marginLeft:'4%',height:'5%',animationDuration:'1s'}}>
+        <p className='ms-2 fw-bold ms-5 mt-2'>Total:{total}</p>
+      </div>}
     
-    <ButtonGroup className='gap-5 position-fixed'>
+      <ButtonGroup className='gap-5 position-fixed'>
          <Button variant="outline-dark" className='rounded-4 mt-3' onClick={()=>{setsearchbar(prev=>!prev)}}>{<i className="material-icons">search</i>}</Button>
         <Button variant='outline-dark' className='rounded-4 mt-3' onClick={()=>{setdisplayMenu(!displayMenu)}}>{<i className="material-icons">restaurant_menu</i>}Menu</Button>
         <Button variant="outline-dark" className='rounded-4 mt-3'>{<i className="material-icons">shopping_cart</i>}Cart</Button> 
         <Button onClick={()=>{dispatch(addNoofItems(noofitems));dispatch(addTotal(total))}}>Dispatch</Button> 
-    </ButtonGroup>
+      </ButtonGroup>
 
-    </Container>
-    <Headers name="BestSellers" mt="20%"/>
-    <div className='d-flex flex-row align-items-stretch overflow-scroll' style={{scrollbarWidth:'none'}}>
-      {Food_Details.map((food_item,index)=>{return(<CardComponent Title={food_item.Title} bodyheight='20%' Price={food_item.Price} id={index} Image={food_item.Image} key={index} Width='50%' Imgdim={['50%','100%']} ml="0" mt="0" pos='relative'/>)})}
-    </div>
-    <Headers name="Starters" mt="10%"/>
-    {Food_Details.map((food_item,index)=>{return(<CardComponent Title={food_item.Title} bodyheight='20%' Price={food_item.Price} id={index} Image={food_item.Image} key={index} Width='100%' Imgdim={['50%','45%']} ml="50%" mt="0%" pos='absolute'/>)})}
-    </div>
+      </Container>
+      <Headers name="BestSellers" mt="30%"/>
+      <div className='d-flex flex-row align-items-stretch overflow-scroll' style={{scrollbarWidth:'none'}}>
+        {Food_Details.map((food_item,index)=>{return(<CardComponent Title={food_item.Title} bodyheight='20%' Price={food_item.Price} id={index} Image={food_item.Image} key={index} Width='50%' Imgdim={['50%','100%']} ml="0" mt="0" pos='relative'/>)})}
+      </div>
+      <Headers name="Starters" mt="10%"/>
+        {Food_Details.map((food_item,index)=>{return(<CardComponent Title={food_item.Title} bodyheight='20%' Price={food_item.Price} id={index} Image={food_item.Image} key={index} Width='100%' Imgdim={['50%','45%']} ml="50%" mt="0%" pos='absolute'/>)})}
+    </>
   )
 }
 
