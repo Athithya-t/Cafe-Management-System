@@ -30,21 +30,27 @@ const Home:React.FC = () => {
   const [searchbar,setsearchbar] = useState(false);
   const [searchquery,setsearchquery] = useState("");
   const [filtereddata,setfiltereddata] = useState('');
+  const dispatch = useDispatch();
   const Items = useSelector((state:RootState)=>state.Order);
   const Titles = Food_Details.map((food)=>{return food.Title})
-  console.log(searchquery);
+  
   const searchHandler:Function=(forminput:string)=>{
     setsearchquery(forminput);
     const filter = Titles.filter((value)=>{return value.toLowerCase().includes(searchquery.toLowerCase())})
     setfiltereddata(filter.length==1?filter[0]:"");
   }
+
+  const MoveToCartPage:Function=()=>{
+    dispatch(addNoofItems(noofitems));
+    dispatch(addTotal(total));
+    console.log('Button Clicked')
+    sessionStorage.setItem('UserData',JSON.stringify({clickedAdd,quantity,displayMenu,openCart,openCartin,total}))
+  }
   //console.log(Items);
-  const dispatch = useDispatch();
   const handleButtonClick = (index:number,Carddata:any) =>{
     const newButtonState = [...clickedAdd];
     newButtonState[index]=true;
     setClickedAdd(prev=>newButtonState);
-    console.log(clickedAdd);
     const newQuantityState = [...quantity];
     newQuantityState[index]++;
     settotal(prev=>prev+Carddata.Price);
@@ -116,9 +122,11 @@ const Home:React.FC = () => {
     <>
       {searchbar&&<div className='position-relative'><div className='animate__animated animate__zoomIn' style={{backgroundColor:'gray',width:'100%',height:'100%',position:'fixed',zIndex:'50',opacity:0.5}} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}}></div>
       <Form className='w-100'>
-        <FormControl placeholder='Search for your favorite food here' value={searchquery} onChange={(e)=>{searchHandler(e.target.value)}} className='rounded-pill shadow' style={{zIndex:'200',position:'fixed',width:'90%',marginLeft:'3%',marginTop:'20%',borderColor:'black'}}/> 
+        <FormControl autoFocus placeholder='Search for your favorite food here' value={searchquery} onChange={(e)=>{searchHandler(e.target.value)}} className='rounded-pill shadow' style={{zIndex:'200',position:'fixed',width:'90%',marginLeft:'3%',marginTop:'20%',borderColor:'black'}}/> 
         <div className='rounded' style={{position:'fixed',backgroundColor:'white',zIndex:'200',marginTop:'30%',marginLeft:'5%',width:'80%'}}>
-          <a href={`#${filtereddata}`} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}}>{searchquery!=""&&filtereddata}</a>
+          <a href={`#${filtereddata}`} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}} style={{textDecoration:"none",color:'black'}}>
+            <div>{searchquery!=""&&filtereddata}</div>
+          </a>
         </div>
       </Form></div>
       }
@@ -130,8 +138,7 @@ const Home:React.FC = () => {
       <ButtonGroup className='gap-5 position-fixed'>
          <Button variant="outline-dark" className='rounded-4 mt-3' onClick={()=>{setsearchbar(prev=>!prev)}}>{<i className="material-icons">search</i>}</Button>
         <Button variant='outline-dark' className='rounded-4 mt-3' onClick={()=>{setdisplayMenu(!displayMenu)}}>{<i className="material-icons">restaurant_menu</i>}Menu</Button>
-        <Button variant="outline-dark" className='rounded-4 mt-3'>{<i className="material-icons">shopping_cart</i>}Cart</Button> 
-        <Button onClick={()=>{dispatch(addNoofItems(noofitems));dispatch(addTotal(total))}}>Dispatch</Button> 
+        <Button variant="outline-dark" className='rounded-4 mt-3' onClick={()=>{MoveToCartPage()}}>{<i className="material-icons">shopping_cart</i>}Cart</Button>
       </ButtonGroup>
 
       </Container>
