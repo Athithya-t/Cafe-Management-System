@@ -19,13 +19,6 @@ const Cart:React.FC = () => {
     let ItemsState = [];
     let UIState:boolean[] = [];
     console.log(cartui);
-    addEventListener('beforeunload',()=>{
-        let b = sessionStorage.getItem("UserData");
-        if(b!=null){
-            let ui = JSON.parse(b);
-            ui.clickedAdd = cartui;
-            sessionStorage.setItem("UserData",JSON.stringify(ui));
-    }})
     useEffect(()=>{
         let a = sessionStorage.getItem("Orders");
         let b = sessionStorage.getItem("UserData");
