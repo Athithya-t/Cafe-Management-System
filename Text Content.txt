@@ -1,0 +1,12 @@
+{<i className="material-icons">search</i>}
+{<i className="material-icons">restaurant_menu</i>}
+{<i className="material-icons">shopping_cart</i>}
+
+<div className='position-relative'><div className='animate__animated animate__zoomIn' style={{backgroundColor:'gray',width:'100%',height:'100%',position:'fixed',zIndex:'50',opacity:0.5}} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}}></div>
+
+setitemdata(prev=>prev.map((i)=>{
+      if(i.Index===index){
+        return {...i,Quantity:i.Quantity+1}
+      }
+      return i;
+    }))
