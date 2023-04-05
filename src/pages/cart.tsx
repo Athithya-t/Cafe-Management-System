@@ -19,6 +19,7 @@ const Cart:React.FC = () => {
     let ItemsState = [];
     let UIState:boolean[] = [];
     console.log(cartui);
+
     useEffect(()=>{
         let a = sessionStorage.getItem("Orders");
         let b = sessionStorage.getItem("UserData");
