@@ -63,6 +63,9 @@ const Cart:React.FC = () => {
             setcartui(UIState);
             setcartquantity(QuantityState);
             setcartitems(ItemsState);
+            pricearray = [...prices];
+            pricearray.splice(index,1);
+            setprices(pricearray);
         }
         setcartitems(prev=>prev.map((i)=>{
             if(i.Index===index){
@@ -71,9 +74,6 @@ const Cart:React.FC = () => {
             return i;
           }))
         setcarttotal(prev=>prev-prices[index]);
-        pricearray = [...prices];
-        pricearray.splice(index,1);
-        setprices(pricearray);
         setcartquantity(QuantityState);
     }
     return(
