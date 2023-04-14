@@ -22,15 +22,15 @@ const Home:React.FC = () => {
   type Food_Item={Title:string,Price:number,Image:StaticImageData|null}
   type Button_Item={IconName:string,BText:string|null,action:Function|null|void}
   type ItemsData = {Index:number,Name:string,Quantity:number,Price:number};
+  const MenuItems:string[] = ['BestSellers','Starters'];
   const Food_Details:Food_Item[] = [{Title:"Ice cream",Price:120,Image:IceCream},{Title:"Burger",Price:240,Image:Burger},{Title:"Pizza",Price:300,Image:Pizza},{Title:"P1",Price:300,Image:IceCream},{Title:"P2",Price:300,Image:Burger},{Title:"P3",Price:300,Image:Pizza}]
   const [clickedAdd,setClickedAdd] = useState(Array());
-  const [load,setload] = useState(false);
   const [prices,setprices] = useState<number[]>(Array());
-  const [quantity,setQuantity] = useState<number[]>(Array());//Array(Food_Details.length).fill(0)
-  const [displayMenu,setdisplayMenu] = useState(false);
+  const [quantity,setQuantity] = useState<number[]>(Array());
   const [openCartin,setOpenCartin] = useState(false);
   const [openCart,setOpenCart] = useState(false);
   const [total,settotal] = useState(0);
+  const [openmenu,setopenmenu] = useState(false);
   const [searchbar,setsearchbar] = useState(false);
   const [searchquery,setsearchquery] = useState("");
   const [filtereddata,setfiltereddata] = useState('');
@@ -40,11 +40,9 @@ const Home:React.FC = () => {
   let newQuantityState:number[] = [];
   let newButtonState:Boolean[]= [];
   let newQuantityStateL:number[] = [];
-  let newQuantityStateCard:number[] = [];
-  let newclickedaddState:number[] = [];
+  let newQuantityStateCard:number[]|void[] = [];
   let newItemsState:string[] = [];
   let newIndex:number[]=[];
-  let newPrices:number[] = [];
   let newItemsData:ItemsData[] = [];
   let newPriceState:number[] = [];
   const Items = useSelector((state:RootState)=>state.Order);
@@ -52,27 +50,15 @@ const Home:React.FC = () => {
   useEffect(()=>{
     setClickedAdd(Items.clickedAdd);
     settotal(Items.Total);
-    let UIStates = sessionStorage.getItem('UserData');
-    let OrderData = sessionStorage.getItem('Orders');
-    if(UIStates!=null&&OrderData!=null){
-    let p =JSON.parse(UIStates);
-    let g =JSON.parse(OrderData);
-    setOpenCart(p.openCart);
-    setOpenCartin(p.openCartin);
-    //settotal(p.total);
-    setitemdata(g.itemdata);
-    g.itemdata.forEach((i:ItemsType,index:number)=>{
-      i.Quantity = g.quantity[index];
-    }) 
-    setprices(p.prices);
-    setitems(g.items);
-    newIndex = g.itemdata.map((i:ItemsType)=>{return i.Index});
-    newQuantityStateL = itemdata.map((i)=>{return i.Quantity});
-    newQuantityStateCard = g.itemdata.map((i:ItemsType,index:number)=>{newQuantityStateL[newIndex[index]]=i.Quantity});
-    console.log(newQuantityStateL);
-    //console.log(newQuantityStateCard);
+    setitemdata(Items.ItemsObj);
+    setprices(Items.Prices);
+    setitems(Items.ItemsObj);
+    setOpenCart(Items.opencart);
+    setOpenCartin(true);
+    newIndex = Items.ItemsObj.map((i:ItemsType)=>{return i.Index});
+    newQuantityStateL = Items.ItemsObj.map((i)=>{return i.Quantity});
+    newQuantityStateCard = Items.ItemsObj.map((i:ItemsType,index:number)=>{newQuantityStateL[newIndex[index]]=i.Quantity});
     setQuantity(newQuantityStateL);
-  }
   },[])
   const searchHandler:Function=(forminput:string)=>{
     setsearchquery(forminput);
@@ -90,8 +76,6 @@ const Home:React.FC = () => {
     dispatch(addItemsObj(itemdata.filter(i=>{return i.Quantity!=0})));
     dispatch(addButtonClick(clickedAdd));
     console.log('Button Clicked');
-    sessionStorage.setItem('UserData',JSON.stringify({clickedAdd,quantity,openCart,openCartin,total,prices}))
-    sessionStorage.setItem('Orders',JSON.stringify({items,total,itemdata,quantity}));
   }
 
   const handleButtonClick = (index:number,Carddata:any) =>{
@@ -111,7 +95,6 @@ const Home:React.FC = () => {
     setitems(newItemsState);
     setClickedAdd(newButtonState);
     settotal(prev=>prev+Carddata.Price);
-    //setnoofitems(prev=>prev+1);
     setOpenCart(true);
     setOpenCartin(true);  
   }
@@ -129,7 +112,6 @@ const Home:React.FC = () => {
       }
       return i;
     }))
-    //setnoofitems(prev=>prev+1);
     settotal(prev=>prev+Price);
   }
 
@@ -161,35 +143,27 @@ const Home:React.FC = () => {
     )
   }
   const CardComponent:React.FC<{Title:string,Price:number,id:number,Image?:StaticImageData|null,Width:string,Imgdim?:string[],ml?:string,mt?:string,pos?:any,bodyheight?:string}> = (Carddata)=>{
-    const [q,setq] = useState([]);
-    useEffect(()=>{},[]);
-    return(
+      return(
       <Card style={{width:Carddata.Width,overflowX:'scroll',flexShrink:0,scrollbarWidth:'none',paddingBottom:'2%'}} className='ms-2 mt-4' id={Carddata.Title}>
-       <Image src={Carddata.Image!} alt="Food Image" style={{height:Carddata.Imgdim![0],width:Carddata.Imgdim![1],borderRadius:'5px 5px 0 0',marginLeft:Carddata.ml,marginTop:Carddata.mt,position:Carddata.pos}}/>
+       <Image src={Carddata.Image!} alt="Food Image" style={{height:Carddata.Imgdim![0],width:Carddata.Imgdim![1],borderRadius:'5px 5px 0 0',marginLeft:Carddata.ml,marginTop:Carddata.mt,position:Carddata.pos,objectFit:'contain'}}/>
         <Card.Body style={{display:'block',paddingBottom:'1px',height:Carddata.bodyheight}}>  
          <Card.Title>{Carddata.Title}</Card.Title>
           <Card.Text>Rs.{Carddata.Price}</Card.Text>
         </Card.Body>
         {clickedAdd[Carddata.id]? 
-            <div className='d-flex flex-row rounded-3 justify-content-center gap-2 shadow-lg animate__animated animate__pulse' style={{width:'35%',backgroundColor:'#EFCDF4',marginLeft:'60%',display:'inline',fontWeight:"bold"}}>
+            <div className='d-flex flex-row rounded-3 justify-content-center gap-2 shadow-lg animate__animated animate__pulse' style={{width:'35%',backgroundColor:'#EFCDF4',marginLeft:'60%',border:'1px solid purple',display:'inline',fontWeight:"bold",borderColor:'purple',borderWidth:'1px'}}>
               <button className='rounded-lg ms-2' style={{width:'20px',fontSize:'15px',height:'20px',display:'contents'}} onClick={()=>{IncreaseQuantity(Carddata.id,Carddata.Price,Carddata)}}>+</button>
               <div style={{display:'inline',fontSize:'20px'}}>{quantity[Carddata.id]}</div>
             <button className='rounded' onClick={()=>{DecreaseQuantity(Carddata.id,Carddata.Price)}} style={{width:'20px',fontSize:'15px',height:'20px',display:'contents'}}>-</button></div>
-            :<Button size='sm' variant='none' onClick={()=>{handleButtonClick(Carddata.id,Carddata)}} className='rounded-3 shadow-lg' style={{width:'35%',backgroundColor:'#EFCDF4',marginLeft:'60%',fontWeight:"bold",marginTop:0}}>ADD</Button>}
+            :<Button size='sm' variant='none' onClick={()=>{handleButtonClick(Carddata.id,Carddata)}} className='rounded-3 shadow-lg' style={{width:'35%',backgroundColor:'#EFCDF4',borderColor:'purple',borderWidth:'1px',marginLeft:'60%',fontWeight:"bold",marginTop:0}}>ADD</Button>}
       </Card>
     )
   }
-  const SearchBar:React.FC=()=>{
+  
+  const MenuComponent:React.FC<{Name:string,index:number}>=(Name)=>{
     return(
-      <div className='position-relative'><div className='animate__animated animate__zoomIn' style={{backgroundColor:'gray',width:'100%',height:'100%',position:'fixed',zIndex:'50',opacity:0.5}} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}}></div>
-      <Form className='w-100'>
-        <FormControl autoFocus placeholder='Search for your favorite food here' value={searchquery} onChange={(e)=>{searchHandler(e.target.value)}} className='rounded-pill shadow' style={{zIndex:'200',position:'fixed',width:'90%',marginLeft:'3%',marginTop:'20%',borderColor:'black'}}/> 
-        <div className='rounded' style={{position:'fixed',backgroundColor:'white',zIndex:'200',marginTop:'30%',marginLeft:'5%',width:'80%'}}>
-          <a href={`#${filtereddata}`} onClick={()=>{setsearchbar(prev=>!prev);setsearchquery("")}} style={{textDecoration:"none",color:'black'}}>
-            <div>{searchquery!=""&&filtereddata}</div>
-          </a>
-        </div>
-      </Form>
+      <div key={Name.index} style={{backgroundColor:'black',color:'white',width:'30%',marginTop:'0%'}} className='rounded'>
+      <div className='ms-3'><a href='google.com'><option>{Name.Name}</option></a></div>
       </div>
     )
   }
@@ -210,12 +184,12 @@ const Home:React.FC = () => {
       {openCart&& <div className={openCartin?"animate__animated animate__fadeInUp rounded-3 shadow-lg":"animate__animated animate__slideOutDown rounded-pill shadow-lg"} style={{backgroundColor:'lightgreen',position:'fixed',bottom:6,zIndex:'999',width:'93%',height:'5%',animationDuration:'1s'}}>
         <p className='ms-2 fw-bold ms-5 mt-2'>Total:<span className='' style={{marginLeft:'50%'}}>Rs {total}</span></p>
       </div>}
-    
       <ButtonGroup className='gap-5'>
          <Button variant="outline-dark" className='rounded-3 mt-3' onClick={()=>{setsearchbar(prev=>!prev)}}>{<Image src="./static/search.svg" alt="search" width="50" height="50" style={{width:"70%",height:"50%"}}/>}</Button>
-        <Button variant='outline-dark' className='rounded-3 mt-3' onClick={()=>{setdisplayMenu(!displayMenu)}}>{<Image alt="menu" src="./static/menu.svg" width="50" height="50" style={{width:"50%",height:"70%"}}/>}Menu</Button>
+        <Button variant='outline-dark' className='rounded-3 mt-3' onClick={()=>{setopenmenu(prev=>!prev)}}>{<Image alt="menu" src="./static/menu.svg" width="50" height="50" style={{width:"50%",height:"70%"}}/>}Menu</Button>
         <Link href='/cart'><Button variant="outline-dark" className='rounded-3 mt-3' onClick={()=>{MoveToCartPage()}}>{<Image alt="cart" src="./static/cart.svg" width="50" height="50" style={{width:"50%",height:"50%"}}/>}Cart</Button></Link>
       </ButtonGroup>
+      {openmenu&&MenuItems.map((i,index)=>{return (<MenuComponent Name={i} index={index}/>)})}
 
       </Container>
       <Headers name="BestSellers" mt="5%"/>
@@ -226,7 +200,6 @@ const Home:React.FC = () => {
       <div style={{paddingBottom:'15%'}}>
       {Food_Details.map((food_item,index)=>{return(<CardComponent Title={food_item.Title} bodyheight='20%' Price={food_item.Price} id={index} Image={food_item.Image} key={index} Width='96%' Imgdim={['50%','48%']} ml="53%" mt="0%" pos='absolute'/>)})}
       </div>
-
     </div>
   )
 }

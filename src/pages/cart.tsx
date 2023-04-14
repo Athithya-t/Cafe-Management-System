@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ItemsType, addButtonClick, addTotal } from 'OrderSlice';
+import { ItemsType, addButtonClick, addItemsObj, addNoofItems, addTotal, opencartInaction, opencartaction } from 'OrderSlice';
 import React, { useEffect, useState } from 'react';
 import { Button, Card } from 'react-bootstrap';
 import { useSelector,useDispatch } from 'react-redux';
@@ -12,37 +12,25 @@ const Cart:React.FC = () => {
     const [carttotal,setcarttotal] = useState(0);
     const [cartui,setcartui] = useState<boolean[]>([]);
     const [prices,setprices] = useState([0]);
-    const [cartempty,setcartempty] = useState(true);
-    //const [cartclickedadd,setcartclickedadd] = useState([]);
     const [cartitems,setcartitems] = useState<ItemsType[]>([{Index:0,Name:"",Quantity:0,Price:0}]);
     let QuantityState = [];
-    let ItemsState = [];
+    let ind:number = 0;
+    let ItemsState:ItemsType[] = [];
     let UIState:boolean[] = [];
-    console.log(cartui);
-
+    let pricearray:number[] = [];
+    console.log(cartitems);
     useEffect(()=>{
-        let a = sessionStorage.getItem("Orders");
-        let b = sessionStorage.getItem("UserData");
-        if(a!=null&&b!=null){
-            //let b = sessionStorage.getItem("UserData");
-            let storageItem = JSON.parse(a);
-            storageItem.quantity = cartquantity;
-            storageItem.itemdata = cartitems;
-            console.log(storageItem.itemdata);
-            let ui = JSON.parse(b);
-            ui.clickedAdd = cartui;
-            sessionStorage.setItem("UserData",JSON.stringify(ui));
-            sessionStorage.setItem("Orders",JSON.stringify(storageItem));   
-        }
         dispatch(addButtonClick(cartui));
+        dispatch(addItemsObj(cartitems));
         dispatch(addTotal(carttotal));
+        dispatch(addNoofItems(cartquantity));
+        if(cartquantity.length!=0)
+        {dispatch(opencartaction(true));
+        dispatch(opencartInaction(true));
+        }
+        else{dispatch(opencartInaction(false));dispatch(opencartaction(false));}
     },[cartquantity,cartui])
     useEffect(()=>{
-        let b = sessionStorage.getItem('UserData');
-        if(b!=null){
-            let ui = JSON.parse(b);
-            //setcartui(ui.clickedAdd);
-        }
         setcartui(Items.clickedAdd);
         setcarttotal(Items.Total);
         setprices(Items.Prices);
@@ -51,31 +39,42 @@ const Cart:React.FC = () => {
     },[])
     
     const IncreaseCartQuantity=(index:number)=>{
+        ind = index;
         QuantityState = [...cartquantity];
-        QuantityState[index]++;
+        QuantityState[ind]++;
+        setcartitems(prev=>prev.map((i,index)=>{
+            if(index===ind){
+              return {...i,Quantity:i.Quantity+1};
+            }
+            return i;
+          }))
         setcartquantity(QuantityState);
-        setcarttotal(prev=>prev+Items.Prices[index]);
-        //setcarttotal(prev=>[...prev,prev[index]]); 
+        setcarttotal(prev=>prev+prices[ind]);
     }
     const DecreaseCartQuantity = (index:number)=>{
         QuantityState = [...cartquantity];
         QuantityState[index]--;
         UIState=[...cartui];
         ItemsState = [...cartitems];
-        console.log(ItemsState[index].Index);
-        //console.log(carttotal);
         if(QuantityState[index]==0){
             QuantityState.splice(index,1);
-            //console.log(ItemsState[index].Index);
             UIState[ItemsState[index].Index] = false;
-            console.log(UIState);
             ItemsState.splice(index,1);
             setcartui(UIState);
-            setcartitems(ItemsState);}
+            setcartquantity(QuantityState);
+            setcartitems(ItemsState);
+        }
+        setcartitems(prev=>prev.map((i)=>{
+            if(i.Index===index){
+              return {...i,Quantity:i.Quantity-1}
+            }
+            return i;
+          }))
+        setcarttotal(prev=>prev-prices[index]);
+        pricearray = [...prices];
+        pricearray.splice(index,1);
+        setprices(pricearray);
         setcartquantity(QuantityState);
-        //setcarttotal(prev=>prev-Items.Prices[index]);
-        setcarttotal(prev=>prev-Items.Prices[index]);
-        //console.log(Items.Prices[index]);
     }
     return(
         <>

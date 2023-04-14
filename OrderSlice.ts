@@ -13,7 +13,9 @@ interface OrderState {
   Items:string[],//ItemsType[]//{title:string,no:number}[]
   Prices:number[],
   ItemsObj:ItemsType[],
-  clickedAdd:boolean[]
+  clickedAdd:boolean[],
+  opencart:boolean,
+  opencartIn:boolean
 }
 
 const initialState: OrderState = {
@@ -22,7 +24,9 @@ const initialState: OrderState = {
   Items:[],
   Prices:[],
   ItemsObj:[],
-  clickedAdd:[]
+  clickedAdd:[],
+  opencart:false,
+  opencartIn:false
 }
 
 export const OrderSlice = createSlice({
@@ -46,11 +50,17 @@ export const OrderSlice = createSlice({
     },
     addButtonClick:(state,action:PayloadAction<boolean[]>)=>{
       state.clickedAdd = action.payload
+    },
+    opencartaction:(state,action:PayloadAction<boolean>)=>{
+      state.opencart = action.payload
+    },
+    opencartInaction:(state,action:PayloadAction<boolean>)=>{
+      state.opencart = action.payload
     }
   }
 })
 
-export const { addItems,addNoofItems,addTotal,addPrices,addItemsObj,addButtonClick } = OrderSlice.actions
+export const { addItems,addNoofItems,addTotal,addPrices,addItemsObj,addButtonClick,opencartaction,opencartInaction } = OrderSlice.actions
 
 export const selectOrder = (state: RootState) => state.Order
 
