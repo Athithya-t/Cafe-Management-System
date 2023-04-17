@@ -47,6 +47,7 @@ const Home:React.FC = () => {
   let newPriceState:number[] = [];
   const Items = useSelector((state:RootState)=>state.Order);
   const Titles = Food_Details.map((food)=>{return food.Title});
+  console.log(prices);
   useEffect(()=>{
     setClickedAdd(Items.clickedAdd);
     settotal(Items.Total);
@@ -72,7 +73,7 @@ const Home:React.FC = () => {
     dispatch(addItems(items));
     dispatch(addNoofItems(quantity));
     dispatch(addTotal(total));
-    dispatch(addPrices(newPriceState));
+    dispatch(addPrices(prices));
     dispatch(addItemsObj(itemdata.filter(i=>{return i.Quantity!=0})));
     dispatch(addButtonClick(clickedAdd));
     console.log('Button Clicked');
@@ -119,7 +120,8 @@ const Home:React.FC = () => {
     const newButtonState = [...clickedAdd];
     newQuantityState = [...quantity];
     newQuantityState[index] = newQuantityState[index]-1;
-    if(newQuantityState[index]==0){newButtonState[index]=false;newItemsState.splice(index);setClickedAdd(newButtonState);}
+    newPriceState = [...prices];
+    if(newQuantityState[index]==0){newPriceState.splice(index,1);console.log(newPriceState);setprices(newPriceState);newButtonState[index]=false;newItemsState.splice(index);setClickedAdd(newButtonState);}
     setQuantity(newQuantityState);
     const q = newQuantityState.filter((i)=>{return i!=(undefined||null)})
     let n = q.reduce((itemq,c)=>{return itemq+c});

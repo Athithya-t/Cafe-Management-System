@@ -18,7 +18,8 @@ const Cart:React.FC = () => {
     let ItemsState:ItemsType[] = [];
     let UIState:boolean[] = [];
     let pricearray:number[] = [];
-    console.log(cartitems);
+    let pricearray1:number[] = [];
+    console.log(prices);
     useEffect(()=>{
         dispatch(addButtonClick(cartui));
         dispatch(addItemsObj(cartitems));
@@ -33,7 +34,9 @@ const Cart:React.FC = () => {
     useEffect(()=>{
         setcartui(Items.clickedAdd);
         setcarttotal(Items.Total);
-        setprices(Items.Prices);
+        pricearray = [...Items.Prices];
+        pricearray1=pricearray.filter((i)=>{return typeof i == 'number'});
+        setprices(pricearray1);
         setcartquantity(Items.ItemsObj.map(i=>{return i.Quantity}));
         setcartitems(Items.ItemsObj.filter((i)=>{return i.Quantity!=0}));
     },[])
@@ -63,6 +66,9 @@ const Cart:React.FC = () => {
             setcartui(UIState);
             setcartquantity(QuantityState);
             setcartitems(ItemsState);
+            pricearray = [...prices];
+            pricearray.splice(index,1);
+            setprices(pricearray);
         }
         setcartitems(prev=>prev.map((i)=>{
             if(i.Index===index){
@@ -71,9 +77,6 @@ const Cart:React.FC = () => {
             return i;
           }))
         setcarttotal(prev=>prev-prices[index]);
-        pricearray = [...prices];
-        pricearray.splice(index,1);
-        setprices(pricearray);
         setcartquantity(QuantityState);
     }
     return(
