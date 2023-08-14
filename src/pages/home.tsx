@@ -18,20 +18,52 @@ import Link from 'next/link';
 import {Food_Item,ItemsData} from 'types';
 import { Loader } from '.';
 
-export async function getServerSideProps() {
+const fetchData = async () => {
+  const response = await fetch('http://127.0.0.1:8000/kitchen/category');
+  const jsonData = await response.json();
+  return jsonData;
+};
+
+
+export const getStaticProps = async () => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/kitchen/category');
+    const jsonData = await response.json();
+    const MenuData = jsonData.map((category:{id:string,name:string}) => ({
+      id: category.id,
+      name: category.name,
+    }));
+    return {
+      props: {
+        MenuData,
+      },
+    };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return {
+      props: {
+        MenuData: [], // Default value or empty array
+      },
+    };
+  }
+};
+
+/*export async function getServerSideProps() {
+  const data = await fetchData();
   const Home = 'Home';
-  const Menu:string[] = ['BestSellers','Starters'];
   const Food_Details:Food_Item[] = [{Title:"Ice cream",Price:120,Image:IceCream},{Title:"Burger",Price:240,Image:Burger},{Title:"Pizza",Price:300,Image:Pizza},{Title:"P1",Price:300,Image:IceCream},{Title:"P2",Price:300,Image:Burger},{Title:"P3",Price:300,Image:Pizza}];
   return {
     props: {
-      Menu,
+      data,
       Home,
       Food_Details,
     },
   };
-}
+}*/
 
-const Home: React.FC<{Home:string,Menu:string[],Food_Details:Food_Item[]}> = ({Home,Menu,Food_Details}) => {
+const Home: React.FC<{MenuData:{id:string,name:string}[]}> = ({MenuData}) => {
+  const Menu:{id:string,name:string}[] = MenuData;
+  const Food_Details:Food_Item[] = [{Title:"Ice cream",Price:120,Image:IceCream},{Title:"Burger",Price:240,Image:Burger},{Title:"Pizza",Price:300,Image:Pizza},{Title:"P1",Price:300,Image:IceCream},{Title:"P2",Price:300,Image:Burger},{Title:"P3",Price:300,Image:Pizza}];
   type ObjectFit = 'contain'|'fill';
   type Position = 'relative'|'absolute'|'static'|'fixed';
   const [ComponentRendered,setComponentRendered] = useState(false);
@@ -62,7 +94,7 @@ const Home: React.FC<{Home:string,Menu:string[],Food_Details:Food_Item[]}> = ({H
   const Titles = Food_Details.map((food)=>{return food.Title});
   useEffect(()=>{
     let UserSession = localStorage.getItem('user');
-    if(UserSession==null){window.location.href = `/`}else{setComponentRendered(true)};
+    if(UserSession==null){window.location.href = `/`}else{setComponentRendered(true);getStaticProps();};
     if(Items.MovedfromCart){
     setClickedAdd(Items.clickedAdd);
     settotal(Items.Total);
@@ -178,7 +210,8 @@ const Home: React.FC<{Home:string,Menu:string[],Food_Details:Food_Item[]}> = ({H
     )
   }
   
-  const MenuComponent:React.FC<{Name:string,index:number}>=(Name)=>{
+  const MenuComponent:React.FC<{Name?:string,index:number}>=(Name)=>{
+    console.log(Name);
     return(
       <div key={Name.index} style={{backgroundColor:'black',color:'white',width:'100%',padding:'5px',marginTop:'0%',textDecoration:'none',zIndex:'999'}} className={`rounded animate__animated animate__slideInDown`}>
         <div className='ms-3' onClick={()=>{setopenmenu(false);}}><a href={`#${Name.Name}`} style={{textDecoration:'none',color:'white'}}><option>{Name.Name}</option></a></div>
@@ -203,20 +236,20 @@ const Home: React.FC<{Home:string,Menu:string[],Food_Details:Food_Item[]}> = ({H
       {openCart&&<div className={openCartin?"animate__animated animate__fadeInUp rounded-3 shadow-lg":"animate__animated animate__slideOutDown rounded-3 shadow-lg"} style={{backgroundColor:'lightgreen',position:'fixed',bottom:6,zIndex:'110',width:'93%',height:'5%',animationDuration:'1s'}}>
         <p className='ms-2 fw-bold ms-5 mt-2'>Total:<span className='' style={{marginLeft:'50%'}}>Rs {total}</span></p>
       </div> }
-      <h1  style={{ margin: '1%', fontWeight: 'bolder', fontSize: '30px', position: 'absolute' }}>{Home}</h1>
+      <h1  style={{ margin: '1%', fontWeight: 'bolder', fontSize: '30px', position: 'absolute' }}>Home</h1>
       <button style={{position:'absolute',display:'contents'}} onClick={()=>{localStorage.removeItem('user');window.location.href = '/'}}>{<Image src="./static/logout.svg" alt="logout" width="30" height="40" style={{marginLeft:'80%',marginTop:'1%',position:'absolute'}}/>}</button>
       <ButtonGroup className={`gap-5 ${isSticky?'position-fixed mt-0':'mt-5'}`} style={{width:'100%',backgroundColor:'#EFCDF4',padding:'5px',border:'1px solid purple',borderColor:'purple',zIndex:'999'}}>
         <Button variant="outline-dark" className='rounded-3' onClick={()=>{setsearchbar(prev=>!prev)}}>{<Image src="./static/search.svg" alt="search" width="50" height="50" style={{width:"70%",height:"50%"}}/>}</Button>
         <Button variant='outline-dark' className='rounded-3' id="menu-button" onClick={()=>{setopenmenu(prev=>!prev)}}>{<Image alt="menu" src="./static/menu.svg" width="50" height="50" style={{width:"50%",height:"70%",position:'relative'}}/>}Menu</Button>
         <Link href='/cart'><Button variant="outline-dark" className='rounded-3' onClick={()=>{MoveToCartPage()}}>{<Image alt="cart" src="./static/cart.svg" width="50" height="50" style={{width:"50%",height:"50%",fontWeight:'bold'}}/>}Cart</Button></Link>
       </ButtonGroup>
-      {openmenu&&<div style={{position:'fixed',marginTop,zIndex:'999'}}>{Menu.map((i,index)=>{return (<MenuComponent Name={i} index={index}/>)})}</div>}
+      {openmenu&&<div style={{position:'fixed',marginTop,zIndex:'999'}}>{Menu.map((i,index)=>{return (<MenuComponent index={index} Name={i.name}/>)})}</div>}
       </Container>
-      <Headers name={Menu[0]} mt="8%" id={Menu[0]}/>
+      <Headers name={Menu[0].name} mt="8%" id={Menu[0].name}/>
       <div className='d-flex flex-row align-items-stretch overflow-scroll' style={{scrollbarWidth:'none'}}>
         {Food_Details.map((food_item,index)=>{return(<CardComponent Title={food_item.Title} bodyheight='20%' Price={food_item.Price} id={index} Image={food_item.Image} key={index} Width='50%' Imgdim={['50%','100%']} ml="0" mt="0" pos='relative' br="0 0 15px 15px" objectFit="fill"/>)})}
       </div>
-      <Headers name={Menu[1]} mt="10%" id={Menu[1]}/>
+      <Headers name={Menu[1].name} mt="10%" id={Menu[1].name}/>
       <div style={{paddingBottom:'15%'}}>
       {Food_Details.map((food_item,index)=>{return(<CardComponent Title={food_item.Title} bodyheight='20%' Price={food_item.Price} id={index} Image={food_item.Image} key={index} Width='96%' Imgdim={['50%','48%']} ml="53%" mt="5%" pos='absolute' br="15px" objectFit="contain"/>)})}
       </div>

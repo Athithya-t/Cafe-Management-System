@@ -6,7 +6,7 @@ class Category(models.Model):
 
     def __str__(self):
         return f"{self.name}"
-    
+
 
 class Item(models.Model):
     name = models.CharField(max_length=32, unique=True, null=False)
