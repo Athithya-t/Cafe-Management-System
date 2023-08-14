@@ -3,8 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from history.serializers import DiningSerializer
 from history.models import Dining
+from django.shortcuts import render
+from django.http import JsonResponse
+import json
 
-@api_view(['POST'])
+@api_view(['GET'])
 def login(request):
     dining_serializer = DiningSerializer(data = request.data)
 
@@ -16,8 +19,20 @@ def login(request):
         return Response(data, status=status.HTTP_201_CREATED)
         
     return Response(dining_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+    #data = {'Name':'Jon Doe','age':'20'}
+    #return JsonResponse(data)
+#
+#@api_view(['POST'])
+#def submit_data(request):
+#    if request.method=='POST':
+#        try:
+#            data = json.loads(request.body)
+#            print(data)
+#            return JsonResponse({'message':'Data recieved'})
+#        except json.JSONDecodeError:
+#            return JsonResponse({'error':'Invalid data'},status=400)
+#    return JsonResponse({'error':'Invalid Req'},status=405)
+#
 class DiningCreateView(generics.CreateAPIView):
     serializer_class = DiningSerializer
     queryset = Dining.objects.all()
@@ -42,6 +57,6 @@ class DiningCreateView(generics.CreateAPIView):
         request.session['dining_id'] = new_dining.pk
         data = {"session_id":request.session.session_key, "dining_id":request.session['dining_id']}
         return Response(data, status=status.HTTP_201_CREATED)
-    
+   
 
 

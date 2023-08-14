@@ -11,7 +11,7 @@ interface OrderState {
   Total:number,
   MovedfromCart:boolean,
   NoofItems:number[],
-  Items:string[],//ItemsType[]//{title:string,no:number}[]
+  Items:string[],
   Prices:number[],
   ItemsObj:ItemsType[],
   clickedAdd:boolean[],

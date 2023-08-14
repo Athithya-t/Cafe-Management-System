@@ -24,15 +24,40 @@ const Login:React.FC=()=>{
     const [ComponentRendered,setComponentRendered] = useState(false);
     const [sendError,setsendError] = useState(false);
     const Formlabel = {fontWeight:'bold',fontSize:'20px',marginTop:'3%'}
-    const submitHandler =()=>{
+    const submitHandler =async()=>{
         if((MobileNo!="")&&(Name!="")){
         localStorage.setItem('user',JSON.stringify({Name,MobileNo}));
         window.location.href='/home';}
         else{
             setsendError(prev=>!prev);
         }
+        /*try {
+            console.log(Name,MobileNo);
+            const response = await fetch('http://127.0.0.1:8000/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({'name': Name, 'mobileno': MobileNo})
+            });
+            const resdata = await response.json();
+            console.log(resdata);
+        } catch (err) {
+            console.log(err);
+        } */       
     }
     useEffect(()=>{
+        const fetchdata = async()=>{
+            try{
+                const response = await fetch('http://127.0.0.1:8000/kitchen/category');
+                const jsondata = await response.json();
+                console.log(jsondata);
+            }
+            catch(err){
+                console.log(err); 
+            }
+        };
+        fetchdata();
         setTimeout(()=>{setComponentRendered(true)},600);
         let UserSession = localStorage.getItem('user');
         console.log(UserSession);  
