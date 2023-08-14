@@ -1,0 +1,13 @@
+{
+    "dev": {
+      "port": 8000,
+      "autoStart": true
+    },
+    "build": {
+      "target": "server"
+    },
+    "preview": {
+      "target": "client"
+    }
+  }
+  
