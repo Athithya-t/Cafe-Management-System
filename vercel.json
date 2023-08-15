@@ -1,13 +1,16 @@
 {
-    "dev": {
-      "port": 8000,
-      "autoStart": true
-    },
-    "build": {
-      "target": "server"
-    },
-    "preview": {
-      "target": "client"
+    "properties": {
+      "dev": {
+        "type": "object",
+        "properties": {
+          "port": {
+            "type": "8000"
+          },
+          "autoStart": {
+            "type": true
+          }
+        }
+      }
     }
   }
   
