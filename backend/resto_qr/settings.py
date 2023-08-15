@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-l=127_#1k8&s!t&c#b%!giwom2q2*$mic!7)q5sc4ymxyy8p6c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['http://localhost:3000','127.0.0.1','localhost','.vercel.app']
+ALLOWED_HOSTS = ['http://localhost:3000','127.0.0.1','localhost']
 
 
 # Application definition
@@ -140,7 +140,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
  
 CORS_ALLOWED_ORIGINS = [
-    'https://cafe-management-system.vercel.app','http://localhost:3000'
+    "http://localhost:3000",
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
